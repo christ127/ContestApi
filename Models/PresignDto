@@ -1,0 +1,2 @@
+public record PresignRequest(string FileName, string ContentType, long Bytes);
+public record PresignResponse(string UploadUrl, string BlobName, DateTimeOffset ExpiresOn);
