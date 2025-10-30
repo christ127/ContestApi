@@ -21,21 +21,20 @@ if (!string.IsNullOrWhiteSpace(kvUrl))
     builder.Configuration.AddAzureKeyVault(new Uri(kvUrl), new DefaultAzureCredential());
 }
 
-var allowedOrigins = new[]
-{
-    "https://mylandingpage-hotk0c4h3-christ127s-projects.vercel.app"
-};
 
-builder.Services.AddCors(options =>
+builder.Services.AddCors(o =>
 {
-    options.AddPolicy("AllowVercel", policy =>
-    {
-        policy.WithOrigins(allowedOrigins)
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials(); // Needed for cookies
-    });
+    o.AddPolicy("frontend", p => p
+        .SetIsOriginAllowed(origin =>
+            origin.Equals("http://localhost:5173", StringComparison.OrdinalIgnoreCase) ||
+            origin.Equals("https://ganaconstarbucks.com", StringComparison.OrdinalIgnoreCase) ||
+            origin.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase)   // previews & prod on Vercel
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .WithExposedHeaders("Content-Disposition"));
 });
+
 
 // --------------------
 // 2️⃣ Configure Authentication with Cookies

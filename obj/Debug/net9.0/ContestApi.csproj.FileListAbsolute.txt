@@ -6,7 +6,6 @@
 /Users/christianesteves/landing-page/ContestApi/obj/Debug/net9.0/ContestApi.csproj.CoreCompileInputs.cache
 /Users/christianesteves/landing-page/ContestApi/obj/Debug/net9.0/ContestApi.MvcApplicationPartsAssemblyInfo.cs
 /Users/christianesteves/landing-page/ContestApi/obj/Debug/net9.0/ContestApi.MvcApplicationPartsAssemblyInfo.cache
-/Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/appsettings.Development.json
 /Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/appsettings.json
 /Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/ContestApi.staticwebassets.endpoints.json
 /Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/ContestApi
@@ -178,3 +177,11 @@
 /Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/publish/ContestApi.deps.json
 /Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/publish/ContestApi.runtimeconfig.json
 /Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/publish/ContestApi.staticwebassets.endpoints.json
+/Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/publish/publish/web.config
+/Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/publish/publish/appsettings.Development.json
+/Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/publish/publish/appsettings.json
+/Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/publish/publish/appsettings.Production.json
+/Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/publish/publish/ContestApi.deps.json
+/Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/publish/publish/ContestApi.runtimeconfig.json
+/Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/publish/publish/ContestApi.staticwebassets.endpoints.json
+/Users/christianesteves/landing-page/ContestApi/obj/Debug/net9.0/ContestApi.sourcelink.json
