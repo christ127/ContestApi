@@ -24,7 +24,7 @@ if (!string.IsNullOrWhiteSpace(kvUrl))
 
 builder.Services.AddCors(o =>
 {
-    o.AddPolicy("frontend", p => p
+    o.AddPolicy("AllowStarbucks", p => p
         .SetIsOriginAllowed(origin =>
             origin.Equals("http://localhost:5173", StringComparison.OrdinalIgnoreCase) ||
             origin.Equals("https://ganaconstarbucks.com", StringComparison.OrdinalIgnoreCase) ||
@@ -90,17 +90,6 @@ var allowedTypes = (builder.Configuration["Uploads__AllowedTypes"] ?? "image/web
    - You can include multiple origins separated by commas
    ───────────────────────────────────────────────────────────── */
 var originsSetting = builder.Configuration["Cors__AllowedOrigin"] ?? "http://localhost:5173";
-// var allowedOrigins = originsSetting.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-// builder.Services.AddCors(o =>
-// {
-//     o.AddPolicy("frontend", p => p
-//         .WithOrigins(allowedOrigins)
-//         .AllowAnyHeader()
-//         .AllowAnyMethod()
-//         .WithExposedHeaders("Content-Disposition")
-//     );
-// });
 
 /* ─────────────────────────────────────────────────────────────
    6) Options and Blob client
@@ -147,7 +136,7 @@ var app = builder.Build();
    7) Middleware order
    ───────────────────────────────────────────────────────────── */
 // app.UseCors("frontend");
-app.UseCors("AllowVercel");
+app.UseCors("AllowStarbucks");
 
 if (app.Environment.IsDevelopment())
 {
