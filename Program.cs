@@ -28,6 +28,7 @@ builder.Services.AddCors(o =>
         .SetIsOriginAllowed(origin =>
             origin.Equals("http://localhost:5173", StringComparison.OrdinalIgnoreCase) ||
             origin.Equals("https://ganaconstarbucks.com", StringComparison.OrdinalIgnoreCase) ||
+            origin.Equals("https://www.ganaconstarbucks.com", StringComparison.OrdinalIgnoreCase) ||
             origin.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase)   // previews & prod on Vercel
         )
         .AllowAnyHeader()
