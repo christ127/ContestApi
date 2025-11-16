@@ -16,7 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
    - Uses the App Service's Managed Identity (DefaultAzureCredential)
    ───────────────────────────────────────────────────────────── */
 var kvUrl = builder.Configuration["KeyVault__Url"];
-var adminKey = builder.Configuration["Admin__Key"]
+var adminKey = builder.Configuration["Admin:Key"]
     ?? throw new InvalidOperationException("Admin:Key config is required");
 
 if (!string.IsNullOrWhiteSpace(kvUrl))
