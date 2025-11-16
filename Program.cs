@@ -279,41 +279,70 @@ app.MapGet("/api/submissions", async (string contestSlug, int page, int pageSize
 
     var total = await baseQuery.CountAsync();
     var items = await baseQuery.Skip((page - 1) * pageSize).Take(pageSize)
-        .Select(s => new { s.SubmissionId, s.FirstName, s.LastName, s.Email, s.Phone, s.ConsentGiven, s.ConsentVersion, s.CreatedAtUtc })
+        .Select(s => new { s.FirstName, s.LastName, s.Email, s.Phone, s.ConsentGiven, s.ConsentVersion, s.CreatedAtUtc })
         .ToListAsync();
 
     return Results.Ok(new { total, page, pageSize, items });
 });
 
-app.MapGet("/api/submissions/export", async (string contestSlug, AppDbContext db) =>
+app.MapGet("/api/submissions/export", async (
+    string contestSlug,
+    HttpRequest request,
+    AppDbContext db) =>
 {
+    // 1) Check admin key – allow header or query string
+    var providedKey =
+        request.Headers["x-admin-key"].FirstOrDefault()
+        ?? request.Query["adminKey"].FirstOrDefault();
+
+    if (string.IsNullOrWhiteSpace(providedKey) || providedKey != adminKey)
+    {
+        return Results.Unauthorized();
+    }
+
+    // 2) Query data
     var data = await db.Submissions
         .Where(s => s.Contest.Slug == contestSlug)
         .OrderByDescending(s => s.CreatedAtUtc)
-        .Select(s => new { s.SubmissionId, s.FirstName, s.LastName, s.Email, s.Phone, s.ConsentGiven, s.ConsentVersion, s.CreatedAtUtc })
+        .Select(s => new
+        {
+            // If you want to KEEP the ID in the CSV, leave this:
+            // s.SubmissionId,
+            s.FirstName,
+            s.LastName,
+            s.Email,
+            s.Phone,
+            s.ConsentGiven,
+            s.ConsentVersion,
+            s.CreatedAtUtc
+        })
         .ToListAsync();
 
     var sb = new StringBuilder();
-    // Include Phone column in the header (your original header missed it)
-    sb.AppendLine("SubmissionId,FirstName,LastName,Email,Phone,ConsentGiven,ConsentVersion,CreatedAtUtc");
+
+    // Header row – remove SubmissionId if you don't want it
+    sb.AppendLine("FirstName,LastName,Email,Phone,ConsentGiven,ConsentVersion,CreatedAtUtc");
 
     static string esc(string? v) => $"\"{(v ?? "").Replace("\"", "\"\"")}\"";
 
     foreach (var r in data)
     {
         sb.AppendLine(string.Join(",",
-            r.SubmissionId,
+            // If you keep ID:
+            // r.SubmissionId,
             esc(r.FirstName),
             esc(r.LastName),
             esc(r.Email),
             esc(r.Phone),
             r.ConsentGiven,
             esc(r.ConsentVersion ?? ""),
-            r.CreatedAtUtc.ToString("u")));
+            r.CreatedAtUtc.ToString("u")
+        ));
     }
 
     var bytes = Encoding.UTF8.GetBytes(sb.ToString());
     var fileName = $"submissions_{contestSlug}_{DateTime.UtcNow:yyyyMMddHHmmss}.csv";
+
     return Results.File(bytes, "text/csv; charset=utf-8", fileName);
 });
 
