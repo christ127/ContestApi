@@ -16,6 +16,9 @@ var builder = WebApplication.CreateBuilder(args);
    - Uses the App Service's Managed Identity (DefaultAzureCredential)
    ───────────────────────────────────────────────────────────── */
 var kvUrl = builder.Configuration["KeyVault__Url"];
+var adminKey = builder.Configuration["Admin__Key"]
+    ?? throw new InvalidOperationException("Admin:Key config is required");
+
 if (!string.IsNullOrWhiteSpace(kvUrl))
 {
     builder.Configuration.AddAzureKeyVault(new Uri(kvUrl), new DefaultAzureCredential());
@@ -105,6 +108,13 @@ builder.Services.AddSingleton(new StoreOptions
     MaxBytes = maxBytes,
     AllowedContentTypes = allowedTypes
 });
+
+// // Bind EmailOptions from configuration
+// builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
+
+// // Register the email service
+// builder.Services.AddSingleton<AcsEmailService>();
+
 
 var storageConn =
     builder.Configuration["Storage:ConnectionString"]         // from KV provider mapping (ConnectionString under "Storage")
@@ -212,7 +222,7 @@ app.MapPost("/api/auth/login", async (HttpContext ctx) =>
     return Results.Ok(new { message = "Logged in successfully" });
 });
 
-app.MapPost("/api/submissions", async (SubmissionDto dto, AppDbContext db) =>
+app.MapPost("/api/submissions", async (SubmissionDto dto, AppDbContext db,  CancellationToken ct) =>
 {
     var ctx = new ValidationContext(dto);
     var results = new List<ValidationResult>();
@@ -241,8 +251,9 @@ app.MapPost("/api/submissions", async (SubmissionDto dto, AppDbContext db) =>
     };
 
     db.Submissions.Add(submission);
-    await db.SaveChangesAsync();
+    await db.SaveChangesAsync(ct);
 
+   
     return Results.Created($"/api/submissions/{submission.SubmissionId}", new
     {
         submission.SubmissionId,
@@ -250,8 +261,15 @@ app.MapPost("/api/submissions", async (SubmissionDto dto, AppDbContext db) =>
     });
 });
 
-app.MapGet("/api/submissions", async (string contestSlug, int page, int pageSize, AppDbContext db) =>
+app.MapGet("/api/submissions", async (string contestSlug, int page, int pageSize, HttpRequest request,
+ AppDbContext db) =>
 {
+    var providedKey = request.Headers["x-admin-key"].FirstOrDefault();
+    if (string.IsNullOrWhiteSpace(providedKey) || providedKey != adminKey)
+    {
+        return Results.Unauthorized();
+    }
+
     page = page <= 0 ? 1 : page;
     pageSize = pageSize <= 0 || pageSize > 500 ? 50 : pageSize;
 
@@ -261,7 +279,7 @@ app.MapGet("/api/submissions", async (string contestSlug, int page, int pageSize
 
     var total = await baseQuery.CountAsync();
     var items = await baseQuery.Skip((page - 1) * pageSize).Take(pageSize)
-        .Select(s => new { s.SubmissionId, s.FirstName, s.LastName, s.Email, s.ConsentGiven, s.ConsentVersion, s.CreatedAtUtc })
+        .Select(s => new { s.SubmissionId, s.FirstName, s.LastName, s.Email, s.Phone, s.ConsentGiven, s.ConsentVersion, s.CreatedAtUtc })
         .ToListAsync();
 
     return Results.Ok(new { total, page, pageSize, items });
