@@ -16,8 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
    - Uses the App Service's Managed Identity (DefaultAzureCredential)
    ───────────────────────────────────────────────────────────── */
 var kvUrl = builder.Configuration["KeyVault__Url"];
-var adminKey = builder.Configuration["Admin:Key"]
-    ?? throw new InvalidOperationException("Admin:Key config is required");
+
 
 if (!string.IsNullOrWhiteSpace(kvUrl))
 {
@@ -115,7 +114,8 @@ builder.Services.AddSingleton(new StoreOptions
 // // Register the email service
 // builder.Services.AddSingleton<AcsEmailService>();
 
-
+var adminKey = builder.Configuration["Admin:Key"]
+    ?? builder.Configuration["Admin__Key"];
 var storageConn =
     builder.Configuration["Storage:ConnectionString"]         // from KV provider mapping (ConnectionString under "Storage")
     ?? builder.Configuration["Storage__ConnectionString"];    // from regular app settings (double-underscore)
