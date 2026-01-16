@@ -26,11 +26,13 @@ if (!string.IsNullOrWhiteSpace(kvUrl))
 
 builder.Services.AddCors(o =>
 {
-    o.AddPolicy("AllowStarbucks", p => p
+    o.AddPolicy("AllowLandingPageDomain", p => p
         .SetIsOriginAllowed(origin =>
             origin.Equals("http://localhost:5173", StringComparison.OrdinalIgnoreCase) ||
-            origin.Equals("https://ganaconstarbucks.com", StringComparison.OrdinalIgnoreCase) ||
-            origin.Equals("https://www.ganaconstarbucks.com", StringComparison.OrdinalIgnoreCase) ||
+            // origin.Equals("https://ganaconstarbucks.com", StringComparison.OrdinalIgnoreCase) ||
+            // origin.Equals("https://www.ganaconstarbucks.com", StringComparison.OrdinalIgnoreCase) ||
+            origin.Equals("https://ganaconwishbone.com", StringComparison.OrdinalIgnoreCase) ||
+            origin.Equals("https://www.ganaconwishbone.com", StringComparison.OrdinalIgnoreCase) ||
             origin.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase)   // previews & prod on Vercel
         )
         .AllowAnyHeader()
@@ -147,7 +149,7 @@ var app = builder.Build();
    7) Middleware order
    ───────────────────────────────────────────────────────────── */
 // app.UseCors("frontend");
-app.UseCors("AllowStarbucks");
+app.UseCors("AllowLandingPageDomain");
 
 if (app.Environment.IsDevelopment())
 {
@@ -172,8 +174,8 @@ app.MapPost("/dev/seed", async (AppDbContext db) =>
     {
         db.Contests.Add(new Contest
         {
-            Name = "Photo Contest 2025",
-            Slug = "photo-contest-2025",
+            Name = "Photo Contest 2026",
+            Slug = "photo-contest-2026",
             StartsAtUtc = DateTime.UtcNow,
             EndsAtUtc = DateTime.UtcNow.AddDays(30),
             IsActive = true
