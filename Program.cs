@@ -33,6 +33,8 @@ builder.Services.AddCors(o =>
             // origin.Equals("https://www.ganaconstarbucks.com", StringComparison.OrdinalIgnoreCase) ||
             origin.Equals("https://ganaconwishbone.com", StringComparison.OrdinalIgnoreCase) ||
             origin.Equals("https://www.ganaconwishbone.com", StringComparison.OrdinalIgnoreCase) ||
+            origin.Equals("https://miheroealpo.com", StringComparison.OrdinalIgnoreCase) ||
+            origin.Equals("https://www.miheroealpo.com", StringComparison.OrdinalIgnoreCase) ||
             origin.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase)   // previews & prod on Vercel
         )
         .AllowAnyHeader()
