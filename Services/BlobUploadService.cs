@@ -58,4 +58,28 @@ public class BlobUploadService
         var uploadUrl = blob.GenerateSasUri(sas);
         return new PresignResponse(blobName,uploadUrl,expires);
     }
+
+    /// <summary>
+    /// Generates a short-lived read-only SAS URL for an existing blob.
+    /// </summary>
+    public Uri GetReadSasUri(string blobName, int expiryMinutes = 60)
+    {
+        var container = _service.GetBlobContainerClient(_options.ContainerName);
+        var blob = container.GetBlobClient(blobName);
+
+        var sas = new BlobSasBuilder
+        {
+            BlobContainerName = container.Name,
+            BlobName          = blob.Name,
+            Resource          = "b",
+            StartsOn          = DateTimeOffset.UtcNow.AddMinutes(-1),
+            ExpiresOn         = DateTimeOffset.UtcNow.AddMinutes(expiryMinutes),
+        };
+        sas.SetPermissions(BlobSasPermissions.Read);
+
+        if (!blob.CanGenerateSasUri)
+            throw new InvalidOperationException("Blob client cannot generate SAS (missing shared key creds).");
+
+        return blob.GenerateSasUri(sas);
+    }
 }

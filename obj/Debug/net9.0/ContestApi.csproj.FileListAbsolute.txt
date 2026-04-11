@@ -185,3 +185,9 @@
 /Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/publish/publish/ContestApi.runtimeconfig.json
 /Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/publish/publish/ContestApi.staticwebassets.endpoints.json
 /Users/christianesteves/landing-page/ContestApi/obj/Debug/net9.0/ContestApi.sourcelink.json
+/Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/Azure.Communication.Email.dll
+/Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/Microsoft.Extensions.Configuration.Binder.dll
+/Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/Microsoft.Extensions.Options.ConfigurationExtensions.dll
+/Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/Newtonsoft.Json.dll
+/Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/SendGrid.dll
+/Users/christianesteves/landing-page/ContestApi/bin/Debug/net9.0/StarkbankEcdsa.dll

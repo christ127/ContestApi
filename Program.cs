@@ -246,9 +246,16 @@ app.MapPost("/api/submissions", async (SubmissionDto dto, AppDbContext db,  Canc
         Phone     = dto.Phone,
         ConsentGiven   = dto.ConsentGiven,
         ConsentVersion = dto.ConsentVersion,
+        // Receipt (optional)
         BlobName    = dto.BlobName,
         ContentType = dto.ContentType,
         SizeBytes   = dto.SizeBytes,
+        // Dog photo
+        DogPhotoBlobName = dto.DogPhotoBlobName,
+        // Dog details
+        DogName    = dto.DogName,
+        DogStory   = dto.DogStory,
+        NoPurchase = dto.NoPurchase,
         CreatedAtUtc = DateTime.UtcNow
     };
 
@@ -264,7 +271,7 @@ app.MapPost("/api/submissions", async (SubmissionDto dto, AppDbContext db,  Canc
 });
 
 app.MapGet("/api/submissions", async (string contestSlug, int page, int pageSize, HttpRequest request,
- AppDbContext db) =>
+ AppDbContext db, BlobUploadService blobSvc) =>
 {
     var providedKey = request.Headers["x-admin-key"].FirstOrDefault();
     if (string.IsNullOrWhiteSpace(providedKey) || providedKey != adminKey)
@@ -280,9 +287,26 @@ app.MapGet("/api/submissions", async (string contestSlug, int page, int pageSize
         .OrderByDescending(s => s.CreatedAtUtc);
 
     var total = await baseQuery.CountAsync();
-    var items = await baseQuery.Skip((page - 1) * pageSize).Take(pageSize)
-        .Select(s => new { s.FirstName, s.LastName, s.Email, s.Phone, s.ConsentGiven, s.ConsentVersion, s.CreatedAtUtc })
+    var rows = await baseQuery.Skip((page - 1) * pageSize).Take(pageSize)
+        .Select(s => new
+        {
+            s.FirstName, s.LastName, s.Email, s.Phone,
+            s.ConsentGiven, s.ConsentVersion, s.CreatedAtUtc,
+            s.DogName, s.DogStory, s.NoPurchase,
+            s.BlobName, s.DogPhotoBlobName
+        })
         .ToListAsync();
+
+    // Embed server-side read SAS URLs (60-min expiry) so the frontend
+    // can display images without a separate round-trip.
+    var items = rows.Select(s => new
+    {
+        s.FirstName, s.LastName, s.Email, s.Phone,
+        s.ConsentGiven, s.ConsentVersion, s.CreatedAtUtc,
+        s.DogName, s.DogStory, s.NoPurchase,
+        receiptImageUrl  = s.BlobName        is not null ? blobSvc.GetReadSasUri(s.BlobName).ToString()        : null,
+        dogPhotoUrl      = s.DogPhotoBlobName is not null ? blobSvc.GetReadSasUri(s.DogPhotoBlobName).ToString() : null,
+    }).ToList();
 
     return Results.Ok(new { total, page, pageSize, items });
 });
