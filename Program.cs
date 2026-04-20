@@ -340,6 +340,7 @@ app.MapGet("/api/submissions/export", async (
             s.LastName,
             s.Email,
             s.Phone,
+            s.DogStory,
             s.ConsentGiven,
             s.ConsentVersion,
             s.CreatedAtUtc
@@ -349,7 +350,7 @@ app.MapGet("/api/submissions/export", async (
     var sb = new StringBuilder();
 
     // Header row – remove SubmissionId if you don't want it
-    sb.AppendLine("FirstName,LastName,Email,Phone,ConsentGiven,ConsentVersion,CreatedAtUtc");
+    sb.AppendLine("FirstName,LastName,Email,Phone,DogStory,ConsentGiven,ConsentVersion,CreatedAtUtc");
 
     static string esc(string? v) => $"\"{(v ?? "").Replace("\"", "\"\"")}\"";
 
@@ -362,6 +363,7 @@ app.MapGet("/api/submissions/export", async (
             esc(r.LastName),
             esc(r.Email),
             esc(r.Phone),
+            esc(r.DogStory),
             r.ConsentGiven,
             esc(r.ConsentVersion ?? ""),
             r.CreatedAtUtc.ToString("u")
