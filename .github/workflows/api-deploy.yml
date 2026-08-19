@@ -6,9 +6,14 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_WEBAPP_NAME: contest-api
-  DOTNET_VERSION: '9.0.x'
-  PROJECT_PATH: ContestApi.csproj
+  RESOURCE_GROUP: rg-contest-landing-prod
+  ACR_NAME: acrcontestapi
+  CONTAINER_APP_NAME: contest-api-ca
+  IMAGE_NAME: contest-api
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   build-and-deploy:
@@ -18,28 +23,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Verify project path
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Allow dynamic install of az CLI extensions
+        run: az config set extension.use_dynamic_install=yes_without_prompt
+
+      - name: Build & push image (ACR remote build)
         run: |
-          test -f "$PROJECT_PATH" || { echo "❌ PROJECT_PATH not found: $PROJECT_PATH"; exit 1; }
-          echo "✅ Found: $PROJECT_PATH"
+          az acr build \
+            --registry ${{ env.ACR_NAME }} \
+            --image ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --image ${{ env.IMAGE_NAME }}:latest \
+            .
 
-      - name: Setup .NET ${{ env.DOTNET_VERSION }}
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Restore
-        run: dotnet restore "$PROJECT_PATH"
-
-      - name: Build (Release)
-        run: dotnet build "$PROJECT_PATH" -c Release --no-restore
-
-      - name: Publish (Release)
-        run: dotnet publish "$PROJECT_PATH" -c Release -o ./publish --no-build
-
-      - name: Deploy to Azure App Service (prod)
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ./publish
+      - name: Deploy new revision to Container Apps
+        run: |
+          az containerapp update \
+            --name ${{ env.CONTAINER_APP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --image ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}

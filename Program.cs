@@ -31,10 +31,12 @@ builder.Services.AddCors(o =>
             origin.Equals("http://localhost:5173", StringComparison.OrdinalIgnoreCase) ||
             // origin.Equals("https://ganaconstarbucks.com", StringComparison.OrdinalIgnoreCase) ||
             // origin.Equals("https://www.ganaconstarbucks.com", StringComparison.OrdinalIgnoreCase) ||
-            origin.Equals("https://ganaconwishbone.com", StringComparison.OrdinalIgnoreCase) ||
-            origin.Equals("https://www.ganaconwishbone.com", StringComparison.OrdinalIgnoreCase) ||
-            origin.Equals("https://miheroealpo.com", StringComparison.OrdinalIgnoreCase) ||
-            origin.Equals("https://www.miheroealpo.com", StringComparison.OrdinalIgnoreCase) ||
+            // origin.Equals("https://ganaconwishbone.com", StringComparison.OrdinalIgnoreCase) ||
+            // origin.Equals("https://www.ganaconwishbone.com", StringComparison.OrdinalIgnoreCase) ||
+            // origin.Equals("https://miheroealpo.com", StringComparison.OrdinalIgnoreCase) ||
+            // origin.Equals("https://www.miheroealpo.com", StringComparison.OrdinalIgnoreCase) ||
+            origin.Equals("https://preparateygana.com", StringComparison.OrdinalIgnoreCase) ||
+            origin.Equals("https://www.preparateygana.com", StringComparison.OrdinalIgnoreCase) ||
             origin.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase)   // previews & prod on Vercel
         )
         .AllowAnyHeader()

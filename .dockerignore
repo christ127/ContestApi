@@ -1,0 +1,10 @@
+bin/
+obj/
+publish/
+.git/
+.vscode/
+.github/
+*.csv
+photo.jpg
+publishProfile.xml
+*.http
