@@ -24,7 +24,18 @@ public class BlobUploadService
         _options = options;
     }
 
-    public async Task<PresignResponse> GetWriteSasAsync(string fileName, string contentType, long bytes)
+    /// <summary>
+    /// Ensures the upload container exists. Call once at startup — not on the
+    /// per-request hot path, since CreateIfNotExistsAsync is a management-plane
+    /// round trip to Azure.
+    /// </summary>
+    public Task EnsureContainerExistsAsync()
+    {
+        var container = _service.GetBlobContainerClient(_options.ContainerName);
+        return container.CreateIfNotExistsAsync();
+    }
+
+    public Task<PresignResponse> GetWriteSasAsync(string fileName, string contentType, long bytes)
     {
         if (!_options.AllowedContentTypes.Contains(contentType))
             throw new InvalidOperationException("Unsupported content type.");
@@ -32,7 +43,6 @@ public class BlobUploadService
             throw new InvalidOperationException("File too large.");
 
         var container = _service.GetBlobContainerClient(_options.ContainerName);
-        await container.CreateIfNotExistsAsync();
 
         var safeName = string.Join("_", fileName.Split(Path.GetInvalidFileNameChars(), StringSplitOptions.RemoveEmptyEntries));
         var blobName = $"{DateTime.UtcNow:yyyy/MM}/{Guid.NewGuid():N}-{safeName}";
@@ -56,7 +66,7 @@ public class BlobUploadService
             throw new InvalidOperationException("Blob client cannot generate SAS (missing shared key creds).");
 
         var uploadUrl = blob.GenerateSasUri(sas);
-        return new PresignResponse(blobName,uploadUrl,expires);
+        return Task.FromResult(new PresignResponse(blobName, uploadUrl, expires));
     }
 
     /// <summary>

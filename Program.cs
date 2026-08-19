@@ -149,6 +149,12 @@ builder.Services.AddScoped<BlobUploadService>();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var blobUploadService = scope.ServiceProvider.GetRequiredService<BlobUploadService>();
+    await blobUploadService.EnsureContainerExistsAsync();
+}
+
 /* ─────────────────────────────────────────────────────────────
    7) Middleware order
    ───────────────────────────────────────────────────────────── */
