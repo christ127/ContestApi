@@ -114,11 +114,11 @@ builder.Services.AddSingleton(new StoreOptions
     AllowedContentTypes = allowedTypes
 });
 
-// // Bind EmailOptions from configuration
-// builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
+// Bind EmailOptions from configuration
+builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
 
-// // Register the email service
-// builder.Services.AddSingleton<AcsEmailService>();
+// Register the email service
+builder.Services.AddSingleton<AcsEmailService>();
 
 var adminKey = builder.Configuration["Admin:Key"]
     ?? builder.Configuration["Admin__Key"];
@@ -234,7 +234,7 @@ app.MapPost("/api/auth/login", async (HttpContext ctx) =>
     return Results.Ok(new { message = "Logged in successfully" });
 });
 
-app.MapPost("/api/submissions", async (SubmissionDto dto, AppDbContext db,  CancellationToken ct) =>
+app.MapPost("/api/submissions", async (SubmissionDto dto, AppDbContext db, AcsEmailService emailSvc, CancellationToken ct) =>
 {
     var ctx = new ValidationContext(dto);
     var results = new List<ValidationResult>();
@@ -266,7 +266,15 @@ app.MapPost("/api/submissions", async (SubmissionDto dto, AppDbContext db,  Canc
     db.Submissions.Add(submission);
     await db.SaveChangesAsync(ct);
 
-   
+    // Fire-and-forget send — deliberately not passed the request's CancellationToken,
+    // since that token is cancelled once the response completes and would abort
+    // the background email send along with it.
+    await emailSvc.SendSubmissionConfirmationAsync(
+        submission.Email,
+        $"{submission.FirstName} {submission.LastName}",
+        submission.SubmissionId,
+        CancellationToken.None);
+
     return Results.Created($"/api/submissions/{submission.SubmissionId}", new
     {
         submission.SubmissionId,
