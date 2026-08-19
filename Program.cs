@@ -73,6 +73,11 @@ builder.Services.AddAuthentication("Cookies")
    ───────────────────────────────────────────────────────────── */
 builder.Services.AddDbContext<AppDbContext>(opts =>
     opts.UseSqlServer(builder.Configuration.GetConnectionString("Sql"))
+        // The Dog*/NoPurchase fields were intentionally removed from the model without a
+        // matching migration (DB columns were deliberately left in place), so the model and
+        // the last migration snapshot will never match. Without this, Database.Migrate()
+        // throws PendingModelChangesWarning as fatal on every startup.
+        .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning))
 );
 
 /* ─────────────────────────────────────────────────────────────
