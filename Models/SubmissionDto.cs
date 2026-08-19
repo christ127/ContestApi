@@ -16,14 +16,6 @@ public class SubmissionDto
     public string? BlobName { get; set; }
     public string? ContentType { get; set; }
     public long? SizeBytes { get; set; }
-
-    // Dog photo file metadata
-    public string? DogPhotoBlobName { get; set; }
-
-    // Dog details
-    public string? DogName { get; set; }
-    public string? DogStory { get; set; }
-    public bool NoPurchase { get; set; }
 }
 
 

@@ -254,12 +254,6 @@ app.MapPost("/api/submissions", async (SubmissionDto dto, AppDbContext db,  Canc
         BlobName    = dto.BlobName,
         ContentType = dto.ContentType,
         SizeBytes   = dto.SizeBytes,
-        // Dog photo
-        DogPhotoBlobName = dto.DogPhotoBlobName,
-        // Dog details
-        DogName    = dto.DogName,
-        DogStory   = dto.DogStory,
-        NoPurchase = dto.NoPurchase,
         CreatedAtUtc = DateTime.UtcNow
     };
 
@@ -296,8 +290,7 @@ app.MapGet("/api/submissions", async (string contestSlug, int page, int pageSize
         {
             s.FirstName, s.LastName, s.Email, s.Phone,
             s.ConsentGiven, s.ConsentVersion, s.CreatedAtUtc,
-            s.DogName, s.DogStory, s.NoPurchase,
-            s.BlobName, s.DogPhotoBlobName
+            s.BlobName
         })
         .ToListAsync();
 
@@ -307,9 +300,7 @@ app.MapGet("/api/submissions", async (string contestSlug, int page, int pageSize
     {
         s.FirstName, s.LastName, s.Email, s.Phone,
         s.ConsentGiven, s.ConsentVersion, s.CreatedAtUtc,
-        s.DogName, s.DogStory, s.NoPurchase,
-        receiptImageUrl  = s.BlobName        is not null ? blobSvc.GetReadSasUri(s.BlobName).ToString()        : null,
-        dogPhotoUrl      = s.DogPhotoBlobName is not null ? blobSvc.GetReadSasUri(s.DogPhotoBlobName).ToString() : null,
+        receiptImageUrl  = s.BlobName is not null ? blobSvc.GetReadSasUri(s.BlobName).ToString() : null,
     }).ToList();
 
     return Results.Ok(new { total, page, pageSize, items });
@@ -342,7 +333,6 @@ app.MapGet("/api/submissions/export", async (
             s.LastName,
             s.Email,
             s.Phone,
-            s.DogStory,
             s.ConsentGiven,
             s.ConsentVersion,
             s.CreatedAtUtc
@@ -352,7 +342,7 @@ app.MapGet("/api/submissions/export", async (
     var sb = new StringBuilder();
 
     // Header row – remove SubmissionId if you don't want it
-    sb.AppendLine("FirstName,LastName,Email,Phone,DogStory,ConsentGiven,ConsentVersion,CreatedAtUtc");
+    sb.AppendLine("FirstName,LastName,Email,Phone,ConsentGiven,ConsentVersion,CreatedAtUtc");
 
     static string esc(string? v) => $"\"{(v ?? "").Replace("\"", "\"\"")}\"";
 
@@ -365,7 +355,6 @@ app.MapGet("/api/submissions/export", async (
             esc(r.LastName),
             esc(r.Email),
             esc(r.Phone),
-            esc(r.DogStory),
             r.ConsentGiven,
             esc(r.ConsentVersion ?? ""),
             r.CreatedAtUtc.ToString("u")
